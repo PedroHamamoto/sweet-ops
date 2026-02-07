@@ -1,12 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net/http"
+
+	"sweet-ops/internal/http/routes"
 )
 
 func main() {
-	a_a := 1
-	log.Println("Starting the application...", a_a)
-	fmt.Println("Hello, World!")
+	r := routes.NewRouter()
+	log.Println("Starting the application on :8080")
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatalf("server error: %v", err)
+	}
 }
