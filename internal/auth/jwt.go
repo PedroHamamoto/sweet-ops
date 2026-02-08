@@ -1,10 +1,15 @@
 package auth
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrInvalidToken = errors.New("invalid token")
 )
 
 type Jwt struct {
@@ -24,4 +29,22 @@ func (j *Jwt) GenerateAccessToken(userID uuid.UUID) (string, error) {
 	}
 
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(j.key)
+}
+
+func (j *Jwt) ParseToken(token string) (*jwt.RegisteredClaims, error) {
+	claims := &jwt.RegisteredClaims{}
+
+	parsedToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
+		return j.key, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !parsedToken.Valid {
+		return nil, ErrInvalidToken
+	}
+
+	return claims, nil
 }

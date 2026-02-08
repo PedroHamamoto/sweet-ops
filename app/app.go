@@ -15,16 +15,19 @@ type App struct {
 }
 
 func New(db *pgxpool.Pool) *App {
+	// User
 	userStore := user.NewStore(db)
 	userService := user.NewService(userStore)
 	userHandler := user.NewHandler(userService)
 
+	// Auth
 	jwt := auth.NewJwt(os.Getenv("JWT_SECRET"))
 	authStore := auth.NewStore(db)
 	authService := auth.NewService(authStore, jwt, userService)
 	authHandler := auth.NewHandler(authService)
+	authMiddleware := auth.NewMiddleware(jwt)
 
-	router := router.NewRouter(userHandler, authHandler)
+	router := router.NewRouter(userHandler, authHandler, authMiddleware)
 
 	return &App{
 		Router: router,

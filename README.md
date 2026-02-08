@@ -1,5 +1,4 @@
 # Sweet Ops
-
 A bakery management platform 
 
 ---
