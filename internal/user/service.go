@@ -42,3 +42,7 @@ func (s *Service) CreateUser(ctx context.Context, input CreateUserInput) (*User,
 
 	return createdUser, nil
 }
+
+func (s *Service) GetByEmail(ctx context.Context, email string) (*User, error) {
+	return s.store.FindByEmail(ctx, email)
+}
