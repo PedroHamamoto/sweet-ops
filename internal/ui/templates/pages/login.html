@@ -1,0 +1,125 @@
+{{ template "base" . }}
+
+{{ define "title" }}Login — Sweet Ops{{ end }}
+
+{{ define "head" }}
+<style>
+    .login-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .brand-logo-text {
+        font-size: 1.8rem;
+        font-weight: 500;
+        color: #26a69a;
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    .card .card-content .card-title {
+        text-align: center;
+        font-weight: 400;
+        color: #555;
+    }
+</style>
+{{ end }}
+
+{{ define "content" }}
+<main>
+    <div class="login-wrapper" x-data="loginForm()">
+        <div class="login-card">
+            <div class="card">
+                <div class="card-content">
+                    <p class="brand-logo-text">🍪 Sweet Ops</p>
+                    <span class="card-title">Sign in</span>
+
+                    <div x-show="errorMessage" x-cloak class="card-panel red lighten-4 red-text text-darken-4"
+                        style="padding: 10px 14px; margin-bottom: 12px;" x-text="errorMessage"></div>
+
+                    <form @submit.prevent="submit">
+                        <div class="input-field">
+                            <i class="material-icons prefix">email</i>
+                            <input id="email" type="email" x-model="email" required autocomplete="email" />
+                            <label for="email">Email</label>
+                        </div>
+
+                        <div class="input-field">
+                            <i class="material-icons prefix">lock</i>
+                            <input id="password" type="password" x-model="password" required
+                                autocomplete="current-password" />
+                            <label for="password">Password</label>
+                        </div>
+
+                        <button type="submit" class="btn waves-effect waves-light col s12" style="width: 100%;"
+                            :disabled="loading">
+                            <span x-show="!loading">Login</span>
+                            <span x-show="loading">
+                                <i class="material-icons left">hourglass_empty</i>
+                                Signing in…
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{{ end }}
+
+{{ define "scripts" }}
+<script>
+    function loginForm() {
+        return {
+            email: "",
+            password: "",
+            loading: false,
+            errorMessage: "",
+
+            async submit() {
+                this.errorMessage = "";
+                this.loading = true;
+
+                try {
+                    const res = await fetch("/api/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: this.email,
+                            password: this.password,
+                        }),
+                    });
+
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(text.trim() || "Login failed");
+                    }
+
+                    const data = await res.json();
+
+                    localStorage.setItem("access_token", data.access_token);
+                    localStorage.setItem("refresh_token", data.refresh_token);
+
+                    document.cookie =
+                        "access_token=" +
+                        encodeURIComponent(data.access_token) +
+                        "; path=/; SameSite=Strict";
+
+                    window.location.href = "/home";
+                } catch (err) {
+                    this.errorMessage = err.message;
+                } finally {
+                    this.loading = false;
+                }
+            },
+        };
+    }
+</script>
+{{ end }}

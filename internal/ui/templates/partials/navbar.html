@@ -1,0 +1,19 @@
+{{ define "navbar" }}
+<nav class="teal">
+    <div class="nav-wrapper container">
+        <a href="/home" class="brand-logo">🍪 Sweet Ops</a>
+        <ul class="right">
+            <li>
+                <a href="#" x-data @click.prevent="
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('refresh_token');
+                        document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                        window.location.href = '/login';
+                    ">
+                    <i class="material-icons left">exit_to_app</i>Sair
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+{{ end }}

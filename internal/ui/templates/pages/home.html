@@ -1,0 +1,47 @@
+{{ template "base" . }}
+
+{{ define "title" }}Home — Sweet Ops{{ end }}
+
+{{ define "content" }}
+<div style="margin-top: 40px;">
+
+    <div class="row">
+        <div class="col s12 m4">
+            <div class="card teal lighten-4 hoverable">
+                <div class="card-content">
+                    <span class="card-title"><i class="material-icons">category</i> Categorias</span>
+                    <p>Gerencie suas categorias.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m4">
+            <div class="card blue lighten-4 hoverable">
+                <div class="card-content">
+                    <span class="card-title"><i class="material-icons">inventory_2</i> Produtos</span>
+                    <p>Gerencie seus produtos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m4">
+            <div class="card orange lighten-4 hoverable">
+                <div class="card-content">
+                    <span class="card-title"><i class="material-icons">factory</i> Produção</span>
+                    <p>Gerencie a produção.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s12 m4">
+            <div class="card green lighten-4 hoverable">
+                <div class="card-content">
+                    <span class="card-title"><i class="material-icons">point_of_sale</i> Vendas</span>
+                    <p>Gerencie suas vendas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ end }}

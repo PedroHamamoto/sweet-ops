@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sweet-ops/internal/ui"
 )
 
 type Handler struct {
@@ -57,4 +58,8 @@ func (h *Handler) Login(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *Handler) RenderLogin(w http.ResponseWriter, req *http.Request) {
+	ui.Render(w, req, "login", nil)
 }
