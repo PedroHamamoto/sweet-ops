@@ -28,6 +28,7 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.RequireAuthUI)
 			r.Get("/home", Home)
+			r.Get("/categories", categoryHandler.RenderCategories)
 		})
 	})
 

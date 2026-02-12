@@ -3,6 +3,7 @@ package category
 import (
 	"encoding/json"
 	"net/http"
+	"sweet-ops/internal/ui"
 )
 
 type Handler struct {
@@ -46,4 +47,8 @@ func (h *Handler) Create(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *Handler) RenderCategories(w http.ResponseWriter, req *http.Request) {
+	ui.Render(w, req, "categories", nil)
 }
