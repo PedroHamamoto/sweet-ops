@@ -24,7 +24,11 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 		r.Use(ui.Layout)
 
 		r.Get("/login", authHandler.RenderLogin)
-		r.Get("/home", Home)
+
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.RequireAuthUI)
+			r.Get("/home", Home)
+		})
 	})
 
 	// API
