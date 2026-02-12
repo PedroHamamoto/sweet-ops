@@ -12,6 +12,12 @@ import (
 func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddleware *auth.Middleware) http.Handler {
 	r := chi.NewRouter()
 
+	// Static files
+	fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir("internal/ui/static")))
+	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
+		fileServer.ServeHTTP(w, r)
+	})
+
 	// Pages
 	r.Group(func(r chi.Router) {
 		r.Use(ui.Layout)
