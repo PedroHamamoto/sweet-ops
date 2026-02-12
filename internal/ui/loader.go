@@ -31,7 +31,7 @@ func load(layout string, page string) *template.Template {
 
 func parse(layout string, page string) *template.Template {
 	files := []string{
-		"internal/ui/templates/layouts/base.html",
+		"internal/ui/templates/layouts/" + layout + ".html",
 		"internal/ui/templates/pages/" + page + ".html",
 	}
 	globalPartials, _ := filepath.Glob("internal/ui/templates/partials/*.html")

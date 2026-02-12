@@ -1,4 +1,4 @@
-{{ define "base" }}
+{{ define "auth" }}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,15 +19,11 @@
 </head>
 
 <body>
-    <header>
-        {{ block "navbar" . }}{{ end }}
-    </header>
 
     <main class="container">
         {{ block "content" . }}{{ end }}
     </main>
 
-    {{ block "footer" . }}{{ end }}
 </body>
 
 </html>

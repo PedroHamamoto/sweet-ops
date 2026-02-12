@@ -2,36 +2,6 @@
 
 {{ define "title" }}Login — Sweet Ops{{ end }}
 
-{{ define "head" }}
-<style>
-    .login-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-    }
-
-    .login-card {
-        width: 100%;
-        max-width: 420px;
-    }
-
-    .brand-logo-text {
-        font-size: 1.8rem;
-        font-weight: 500;
-        color: #26a69a;
-        text-align: center;
-        margin-bottom: 0;
-    }
-
-    .card .card-content .card-title {
-        text-align: center;
-        font-weight: 400;
-        color: #555;
-    }
-</style>
-{{ end }}
-
 {{ define "content" }}
 <main>
     <div class="login-wrapper" x-data="loginForm()">
@@ -72,54 +42,4 @@
         </div>
     </div>
 </main>
-{{ end }}
-
-{{ define "scripts" }}
-<script>
-    function loginForm() {
-        return {
-            email: "",
-            password: "",
-            loading: false,
-            errorMessage: "",
-
-            async submit() {
-                this.errorMessage = "";
-                this.loading = true;
-
-                try {
-                    const res = await fetch("/api/login", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            email: this.email,
-                            password: this.password,
-                        }),
-                    });
-
-                    if (!res.ok) {
-                        const text = await res.text();
-                        throw new Error(text.trim() || "Login failed");
-                    }
-
-                    const data = await res.json();
-
-                    localStorage.setItem("access_token", data.access_token);
-                    localStorage.setItem("refresh_token", data.refresh_token);
-
-                    document.cookie =
-                        "access_token=" +
-                        encodeURIComponent(data.access_token) +
-                        "; path=/; SameSite=Strict";
-
-                    window.location.href = "/home";
-                } catch (err) {
-                    this.errorMessage = err.message;
-                } finally {
-                    this.loading = false;
-                }
-            },
-        };
-    }
-</script>
 {{ end }}
