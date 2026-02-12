@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"sweet-ops/internal/auth"
+	"sweet-ops/internal/category"
 	"sweet-ops/internal/http/router"
 	"sweet-ops/internal/user"
 
@@ -27,7 +28,12 @@ func New(db *pgxpool.Pool) *App {
 	authHandler := auth.NewHandler(authService)
 	authMiddleware := auth.NewMiddleware(jwt)
 
-	router := router.NewRouter(userHandler, authHandler, authMiddleware)
+	// Category
+	categoryStore := category.NewStore(db)
+	categoryService := category.NewService(categoryStore)
+	categoryHandler := category.NewHandler(categoryService)
+
+	router := router.NewRouter(userHandler, authHandler, authMiddleware, categoryHandler)
 
 	return &App{
 		Router: router,

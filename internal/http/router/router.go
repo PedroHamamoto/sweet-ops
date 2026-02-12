@@ -3,13 +3,14 @@ package router
 import (
 	"net/http"
 	"sweet-ops/internal/auth"
+	"sweet-ops/internal/category"
 	"sweet-ops/internal/ui"
 	"sweet-ops/internal/user"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddleware *auth.Middleware) http.Handler {
+func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddleware *auth.Middleware, categoryHandler *category.Handler) http.Handler {
 	r := chi.NewRouter()
 
 	// Static files
@@ -33,10 +34,7 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.RequireAuth)
-			r.Get("/protected", func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("This is a protected route"))
-			})
+			r.Post("/categories", categoryHandler.Create)
 		})
 	})
 
