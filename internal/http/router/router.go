@@ -40,6 +40,7 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.RequireAuth)
 			r.Post("/categories", categoryHandler.Create)
+			r.Get("/categories", categoryHandler.GetAll)
 		})
 	})
 
