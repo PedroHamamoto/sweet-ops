@@ -3,7 +3,7 @@
 {{ define "title" }}Sweet Ops - Categorias{{ end }}
 
 {{ define "content" }}
-<div x-data="categoryForm()">
+<div x-data="categoriesPage()" x-init="fetchCategories()">
     <div style="margin-top: 40px;">
         <div class="row">
             <div class="col s12">
@@ -14,30 +14,13 @@
         </div>
     </div>
 
-    <div id="categoryModal" class="modal">
-        <div class="modal-content">
-            <h4>Nova Categoria</h4>
-            <form @submit.prevent="submit">
-                <div class="input-field">
-                    <i class="material-icons prefix">label</i>
-                    <input id="category_name" type="text" x-model="name" required />
-                    <label for="category_name">Nome da Categoria</label>
-                </div>
-                <div x-show="errorMessage" class="card-panel red lighten-4 red-text text-darken-4"
-                    style="padding: 10px 14px; margin-bottom: 12px;" x-text="errorMessage"></div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
-            <button type="submit" class="btn waves-effect waves-light teal" @click="submit()" :disabled="loading">
-                <span x-show="!loading">Salvar</span>
-                <span x-show="loading">
-                    <i class="material-icons left">hourglass_empty</i>
-                    Salvando…
-                </span>
-            </button>
+    <div class="row">
+        <div class="col s12">
+            {{ template "categories-table" . }}
         </div>
     </div>
+
+    {{ template "categories-modal" . }}
 </div>
 
 {{ end }}
