@@ -3,6 +3,7 @@ package product
 import (
 	"context"
 	"sweet-ops/internal/category"
+	"sweet-ops/internal/types"
 
 	"github.com/google/uuid"
 )
@@ -32,4 +33,12 @@ func (s *Service) Create(ctx context.Context, input *CreateProductInput) (*Produ
 	product := NewProduct(category, input.Flavor, input.ProductionPrice, input.SellingPrice)
 
 	return s.store.Create(ctx, product)
+}
+
+func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageable[*Product], error) {
+	products, totalItems, err := s.store.FindAll(ctx, page, pageSize)
+	if err != nil {
+		return types.Pageable[*Product]{}, err
+	}
+	return types.NewPageable(products, page, pageSize, totalItems), nil
 }

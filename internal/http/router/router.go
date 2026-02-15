@@ -45,6 +45,7 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 			r.Get("/categories", categoryHandler.GetAll)
 
 			r.Post("/products", productHandler.Create)
+			r.Get("/products", productHandler.GetAll)
 		})
 	})
 

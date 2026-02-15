@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 	"sweet-ops/internal/category"
+	"sweet-ops/internal/types"
 	"sweet-ops/internal/ui"
 
 	"github.com/google/uuid"
@@ -84,4 +86,41 @@ func (h *Handler) Create(w http.ResponseWriter, req *http.Request) {
 
 func (h *Handler) RenderProducts(w http.ResponseWriter, req *http.Request) {
 	ui.Render(w, req, "products", nil)
+}
+
+func (h *Handler) GetAll(w http.ResponseWriter, req *http.Request) {
+	page, _ := strconv.Atoi(req.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	pageSize, _ := strconv.Atoi(req.URL.Query().Get("page_size"))
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 10
+	}
+
+	result, err := h.service.GetAll(req.Context(), page, pageSize)
+	if err != nil {
+		http.Error(w, "failed to get products", http.StatusInternalServerError)
+		return
+	}
+
+	var items []ProductResponse
+	for _, product := range result.Data {
+		items = append(items, ProductResponse{
+			ID: product.ID.String(),
+			Category: category.CategoryResponse{
+				ID:   product.Category.ID.String(),
+				Name: product.Category.Name,
+			},
+			Flavor:          product.Flavor,
+			ProductionPrice: product.ProductionPrice,
+			SellingPrice:    product.SellingPrice,
+			MarkupMargin:    product.MarkupMargin,
+		})
+	}
+
+	response := types.NewPageable(items, result.Page, result.PageSize, result.TotalItems)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
