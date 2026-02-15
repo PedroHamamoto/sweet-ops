@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"sweet-ops/internal/auth"
 	"sweet-ops/internal/category"
+	"sweet-ops/internal/product"
 	"sweet-ops/internal/ui"
 	"sweet-ops/internal/user"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddleware *auth.Middleware, categoryHandler *category.Handler) http.Handler {
+func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddleware *auth.Middleware, categoryHandler *category.Handler, productHandler *product.Handler) http.Handler {
 	r := chi.NewRouter()
 
 	// Static files
@@ -41,6 +42,8 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 			r.Use(authMiddleware.RequireAuth)
 			r.Post("/categories", categoryHandler.Create)
 			r.Get("/categories", categoryHandler.GetAll)
+
+			r.Post("/products", productHandler.Create)
 		})
 	})
 

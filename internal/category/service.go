@@ -3,6 +3,8 @@ package category
 import (
 	"context"
 	"sweet-ops/internal/types"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -15,6 +17,10 @@ func NewService(store *Store) *Service {
 
 func (s *Service) Create(ctx context.Context, name string) (*Category, error) {
 	return s.store.Create(ctx, name)
+}
+
+func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*Category, error) {
+	return s.store.FindByID(ctx, id)
 }
 
 func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageable[*Category], error) {

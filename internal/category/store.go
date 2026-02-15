@@ -2,10 +2,14 @@ package category
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+var ErrCategoryNotFound = errors.New("category not found")
 
 type Store struct {
 	db *pgxpool.Pool
@@ -59,4 +63,17 @@ func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Category, i
 	}
 
 	return categories, totalItems, nil
+}
+
+func (s *Store) FindByID(ctx context.Context, id uuid.UUID) (*Category, error) {
+	statement := "SELECT id, name, created_at, updated_at FROM categories WHERE id = $1"
+	c := &Category{}
+	err := s.db.QueryRow(ctx, statement, id).Scan(&c.ID, &c.Name, &c.CreatedAt, &c.UpdatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrCategoryNotFound
+		}
+		return nil, err
+	}
+	return c, nil
 }
