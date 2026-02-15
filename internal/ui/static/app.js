@@ -139,6 +139,113 @@ function categoriesPage() {
                 this.name = "";
                 this.page = 1;
                 await this.fetchCategories();
+                M.toast({ html: 'Categoria criada com sucesso!', classes: 'green' });
+            } catch (err) {
+                this.errorMessage = err.message;
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
+
+// Products
+function productsPage() {
+    return {
+        // Categories for dropdown
+        categories: [],
+        filteredCategories: [],
+        categorySearch: "",
+        categoryId: "",
+        showDropdown: false,
+
+        // Form state
+        flavor: "",
+        productionPrice: "",
+        sellingPrice: "",
+        loading: false,
+        errorMessage: "",
+
+        openModal() {
+            const modal = document.getElementById('productModal');
+            const instance = M.Modal.getInstance(modal);
+            instance.open();
+        },
+
+        filterCategories() {
+            const search = this.categorySearch.toLowerCase();
+            if (search === "") {
+                this.filteredCategories = this.categories;
+            } else {
+                this.filteredCategories = this.categories.filter(cat =>
+                    cat.name.toLowerCase().startsWith(search)
+                );
+            }
+            this.showDropdown = true;
+        },
+
+        selectCategory(category) {
+            this.categoryId = category.id;
+            this.categorySearch = category.name;
+            this.showDropdown = false;
+        },
+
+        async fetchCategories() {
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch(`/api/categories?page=1&page_size=100`, {
+                    headers: { "Authorization": "Bearer " + token },
+                });
+
+                if (!res.ok) {
+                    throw new Error("Falha ao carregar categorias");
+                }
+
+                const data = await res.json();
+                this.categories = data.data || [];
+                this.filteredCategories = this.categories;
+            } catch (err) {
+                console.error(err);
+            }
+        },
+
+        async submit() {
+            this.errorMessage = "";
+            this.loading = true;
+
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch("/api/products", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token,
+                    },
+                    body: JSON.stringify({
+                        category_id: this.categoryId,
+                        flavor: this.flavor,
+                        production_price: parseFloat(this.productionPrice),
+                        selling_price: parseFloat(this.sellingPrice),
+                    }),
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text.trim() || "Falha ao criar produto");
+                }
+
+                const modal = document.getElementById('productModal');
+                M.Modal.getInstance(modal).close();
+
+                // Reset form
+                this.categoryId = "";
+                this.categorySearch = "";
+                this.flavor = "";
+                this.productionPrice = "";
+                this.sellingPrice = "";
+                this.filteredCategories = this.categories;
+
+                M.toast({ html: 'Produto criado com sucesso!', classes: 'green' });
             } catch (err) {
                 this.errorMessage = err.message;
             } finally {
@@ -150,6 +257,7 @@ function categoriesPage() {
 
 document.addEventListener('DOMContentLoaded', function () {
     initModal('categoryModal');
+    initModal('productModal');
 });
 
 // Common

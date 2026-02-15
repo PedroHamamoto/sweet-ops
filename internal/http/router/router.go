@@ -30,6 +30,7 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 			r.Use(authMiddleware.RequireAuthUI)
 			r.Get("/home", Home)
 			r.Get("/categories", categoryHandler.RenderCategories)
+			r.Get("/products", productHandler.RenderProducts)
 		})
 	})
 

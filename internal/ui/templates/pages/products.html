@@ -1,0 +1,20 @@
+{{ template "base" . }}
+
+{{ define "title" }}Sweet Ops - Produtos{{ end }}
+
+{{ define "content" }}
+<div x-data="productsPage()" x-init="fetchCategories()">
+    <div style="margin-top: 40px;">
+        <div class="row">
+            <div class="col s12">
+                <button class="btn waves-effect waves-light teal" @click="openModal()">
+                    <i class="material-icons left">add</i>Novo Produto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{ template "products-modal" . }}
+</div>
+
+{{ end }}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"sweet-ops/internal/category"
+	"sweet-ops/internal/ui"
 
 	"github.com/google/uuid"
 )
@@ -79,4 +80,8 @@ func (h *Handler) Create(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *Handler) RenderProducts(w http.ResponseWriter, req *http.Request) {
+	ui.Render(w, req, "products", nil)
 }
