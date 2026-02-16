@@ -44,7 +44,7 @@ func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Product, in
 
 	offset := (page - 1) * pageSize
 	statement := `
-		SELECT p.id, p.flavor, p.production_price, p.selling_price, p.markup_margin, p.created_at, p.updated_at,
+		SELECT p.id, p.flavor, p.production_price, p.selling_price, p.markup_margin, p.stock_quantity, p.created_at, p.updated_at,
 		       c.id, c.name, c.created_at, c.updated_at
 		FROM products p
 		JOIN categories c ON p.category_id = c.id
@@ -61,7 +61,7 @@ func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Product, in
 	for rows.Next() {
 		p := &Product{Category: &category.Category{}}
 		err := rows.Scan(
-			&p.ID, &p.Flavor, &p.ProductionPrice, &p.SellingPrice, &p.MarkupMargin, &p.CreatedAt, &p.UpdatedAt,
+			&p.ID, &p.Flavor, &p.ProductionPrice, &p.SellingPrice, &p.MarkupMargin, &p.StockQuantity, &p.CreatedAt, &p.UpdatedAt,
 			&p.Category.ID, &p.Category.Name, &p.Category.CreatedAt, &p.Category.UpdatedAt,
 		)
 		if err != nil {

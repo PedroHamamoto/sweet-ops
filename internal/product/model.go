@@ -14,6 +14,7 @@ type Product struct {
 	ProductionPrice float64
 	SellingPrice    float64
 	MarkupMargin    float64
+	StockQuantity   int
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }

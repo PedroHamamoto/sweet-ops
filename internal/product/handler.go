@@ -34,6 +34,7 @@ type ProductResponse struct {
 	ProductionPrice float64                   `json:"production_price"`
 	SellingPrice    float64                   `json:"selling_price"`
 	MarkupMargin    float64                   `json:"markup_margin"`
+	StockQuantity   int                       `json:"stock_quantity"`
 }
 
 func (h *Handler) Create(w http.ResponseWriter, req *http.Request) {
@@ -67,17 +68,7 @@ func (h *Handler) Create(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	response := ProductResponse{
-		ID: product.ID.String(),
-		Category: category.CategoryResponse{
-			ID:   product.Category.ID.String(),
-			Name: product.Category.Name,
-		},
-		Flavor:          product.Flavor,
-		ProductionPrice: product.ProductionPrice,
-		SellingPrice:    product.SellingPrice,
-		MarkupMargin:    product.MarkupMargin,
-	}
+	response := toProductResponse(product)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -106,21 +97,26 @@ func (h *Handler) GetAll(w http.ResponseWriter, req *http.Request) {
 
 	var items []ProductResponse
 	for _, product := range result.Data {
-		items = append(items, ProductResponse{
-			ID: product.ID.String(),
-			Category: category.CategoryResponse{
-				ID:   product.Category.ID.String(),
-				Name: product.Category.Name,
-			},
-			Flavor:          product.Flavor,
-			ProductionPrice: product.ProductionPrice,
-			SellingPrice:    product.SellingPrice,
-			MarkupMargin:    product.MarkupMargin,
-		})
+		items = append(items, toProductResponse(product))
 	}
 
 	response := types.NewPageable(items, result.Page, result.PageSize, result.TotalItems)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func toProductResponse(product *Product) ProductResponse {
+	return ProductResponse{
+		ID: product.ID.String(),
+		Category: category.CategoryResponse{
+			ID:   product.Category.ID.String(),
+			Name: product.Category.Name,
+		},
+		Flavor:          product.Flavor,
+		ProductionPrice: product.ProductionPrice,
+		SellingPrice:    product.SellingPrice,
+		MarkupMargin:    product.MarkupMargin,
+		StockQuantity:   product.StockQuantity,
+	}
 }

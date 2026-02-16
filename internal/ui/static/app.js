@@ -176,7 +176,9 @@ function productsPage() {
 
         openModal() {
             const modal = document.getElementById('productModal');
+            console.log(modal)
             const instance = M.Modal.getInstance(modal);
+            console.log(instance)
             instance.open();
         },
 

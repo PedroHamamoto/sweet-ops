@@ -30,6 +30,7 @@
                     <th>Valor de Produção</th>
                     <th>Valor de Venda</th>
                     <th>Margem</th>
+                    <th>Quantidade em Estoque</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,6 +40,7 @@
                         <td x-text="formatMoney(product.production_price)"></td>
                         <td x-text="formatMoney(product.selling_price)"></td>
                         <td x-text="formatPercentage(product.markup_margin)"></td>
+                        <td x-text="product.stock_quantity"></td>
                     </tr>
                 </template>
             </tbody>
