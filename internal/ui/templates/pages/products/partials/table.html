@@ -1,0 +1,68 @@
+{{ define "products-table" }}
+<div x-show="loadingTable" class="center-align" style="padding: 40px 0;">
+    <div class="preloader-wrapper small active">
+        <div class="spinner-layer spinner-teal-only">
+            <div class="circle-clipper left">
+                <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+                <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template x-if="!loadingTable && products.length === 0">
+    <div class="card-panel grey lighten-4 center-align">
+        <p class="grey-text text-darken-1">Nenhum produto encontrado.</p>
+    </div>
+</template>
+
+<template x-if="!loadingTable && products.length > 0">
+    <div>
+        <table class="striped highlight responsive-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Valor de Produção</th>
+                    <th>Valor de Venda</th>
+                    <th>Margem</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="product in products" :key="product.id">
+                    <tr>
+                        <td x-text="product.category.name + ' ' + product.flavor"></td>
+                        <td x-text="formatMoney(product.production_price)"></td>
+                        <td x-text="formatMoney(product.selling_price)"></td>
+                        <td x-text="formatPercentage(product.markup_margin)"></td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <div class="center-align" style="margin-top: 20px;" x-show="totalPages > 1">
+            <ul class="pagination">
+                <li :class="page <= 1 ? 'disabled' : 'waves-effect'">
+                    <a href="#!" @click.prevent="goToPage(page - 1)">
+                        <i class="material-icons">chevron_left</i>
+                    </a>
+                </li>
+                <template x-for="p in paginationRange()" :key="p">
+                    <li :class="p === page ? 'active teal' : 'waves-effect'">
+                        <a href="#!" @click.prevent="goToPage(p)" x-text="p"></a>
+                    </li>
+                </template>
+                <li :class="page >= totalPages ? 'disabled' : 'waves-effect'">
+                    <a href="#!" @click.prevent="goToPage(page + 1)">
+                        <i class="material-icons">chevron_right</i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+{{ end }}

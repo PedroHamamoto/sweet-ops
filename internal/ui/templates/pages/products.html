@@ -3,7 +3,7 @@
 {{ define "title" }}Sweet Ops - Produtos{{ end }}
 
 {{ define "content" }}
-<div x-data="productsPage()" x-init="fetchCategories()">
+<div x-data="productsPage()" x-init="fetchCategories(); fetchProducts()">
     <div style="margin-top: 40px;">
         <div class="row">
             <div class="col s12">
@@ -11,6 +11,12 @@
                     <i class="material-icons left">add</i>Novo Produto
                 </button>
             </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s12">
+            {{ template "products-table" . }}
         </div>
     </div>
 

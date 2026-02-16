@@ -152,6 +152,14 @@ function categoriesPage() {
 // Products
 function productsPage() {
     return {
+        // Table state
+        products: [],
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+        totalItems: 0,
+        loadingTable: false,
+
         // Categories for dropdown
         categories: [],
         filteredCategories: [],
@@ -170,6 +178,69 @@ function productsPage() {
             const modal = document.getElementById('productModal');
             const instance = M.Modal.getInstance(modal);
             instance.open();
+        },
+
+        async fetchProducts() {
+            this.loadingTable = true;
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch(`/api/products?page=${this.page}&page_size=${this.pageSize}`, {
+                    headers: { "Authorization": "Bearer " + token },
+                });
+
+                if (!res.ok) {
+                    throw new Error("Falha ao carregar produtos");
+                }
+
+                const data = await res.json();
+                this.products = data.data || [];
+                this.page = data.page;
+                this.pageSize = data.page_size;
+                this.totalPages = data.total_pages;
+                this.totalItems = data.total_items;
+            } catch (err) {
+                console.error(err);
+            } finally {
+                this.loadingTable = false;
+            }
+        },
+
+        goToPage(p) {
+            if (p < 1 || p > this.totalPages) return;
+            this.page = p;
+            this.fetchProducts();
+        },
+
+        paginationRange() {
+            const range = [];
+            const maxVisible = 5;
+            let start = Math.max(1, this.page - Math.floor(maxVisible / 2));
+            let end = start + maxVisible - 1;
+
+            if (end > this.totalPages) {
+                end = this.totalPages;
+                start = Math.max(1, end - maxVisible + 1);
+            }
+
+            for (let i = start; i <= end; i++) {
+                range.push(i);
+            }
+            return range;
+        },
+
+        formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        },
+
+        formatPercentage(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'percent',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value / 100);
         },
 
         filterCategories() {
@@ -244,6 +315,10 @@ function productsPage() {
                 this.productionPrice = "";
                 this.sellingPrice = "";
                 this.filteredCategories = this.categories;
+
+                // Refresh products list
+                this.page = 1;
+                await this.fetchProducts();
 
                 M.toast({ html: 'Produto criado com sucesso!', classes: 'green' });
             } catch (err) {
