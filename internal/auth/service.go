@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sweet-ops/internal/user"
+	"sweet-ops/internal/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -51,7 +52,7 @@ func (s *Service) Login(ctx context.Context, input *LoginInput) (*LoginOutput, e
 		return nil, err
 	}
 
-	refresh, _ := uuid.NewV7()
+	refresh := utils.NewUUID()
 
 	err = s.store.SaveRefreshToken(ctx, user.ID, refresh.String(), time.Now().Add(30*24*time.Hour))
 	if err != nil {

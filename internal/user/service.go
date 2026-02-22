@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
+	"sweet-ops/internal/utils"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,7 +27,7 @@ func (s *Service) CreateUser(ctx context.Context, input CreateUserInput) (*User,
 		return nil, err
 	}
 
-	id, _ := uuid.NewV7()
+	id := utils.NewUUID()
 
 	user := &User{
 		ID:           id,

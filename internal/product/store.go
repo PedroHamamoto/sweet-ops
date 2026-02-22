@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sweet-ops/internal/category"
+	"sweet-ops/internal/utils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -25,7 +26,7 @@ func (s *Store) Create(ctx context.Context, product *Product) (*Product, error) 
 		RETURNING id, created_at, updated_at
 		`
 
-	id, _ := uuid.NewV7()
+	id := utils.NewUUID()
 
 	err := s.db.QueryRow(ctx, statement, id, product.Category.ID, product.Flavor, product.ProductionPrice, product.SellingPrice, product.MarkupMargin).
 		Scan(&product.ID, &product.CreatedAt, &product.UpdatedAt)
@@ -95,7 +96,7 @@ func (s *Store) RegisterProduction(ctx context.Context, productID uuid.UUID, qua
 		return err
 	}
 
-	id, _ := uuid.NewV7()
+	id := utils.NewUUID()
 	_, err = tx.Exec(ctx, "INSERT INTO productions (id, product_id, quantity, created_at) VALUES ($1, $2, $3, now())", id, productID, quantity)
 	if err != nil {
 		return err

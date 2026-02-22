@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"sweet-ops/internal/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ func (s *Store) SaveRefreshToken(ctx context.Context, userID uuid.UUID, token st
 		INSERT INTO refresh_tokens (id, user_id, token_hash, expires_at)
 		VALUES ($1, $2, $3, $4)
 		`
-	id, _ := uuid.NewV7()
+	id := utils.NewUUID()
 	_, err := s.db.Exec(ctx, statement, id, userID, token, expiresAt)
 
 	return err
