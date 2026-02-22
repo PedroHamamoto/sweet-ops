@@ -9,13 +9,11 @@
                     @focus="showDropdown = true" @blur="setTimeout(() => showDropdown = false, 200)" autocomplete="off"
                     required />
                 <label for="category_search">Categoria</label>
-                <div x-show="showDropdown && filteredCategories.length > 0" class="category-dropdown"
-                    style="position: absolute; z-index: 1000; background: white; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; width: calc(100% - 48px); left: 48px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div x-show="showDropdown && filteredCategories.length > 0"
+                    class="category-dropdown collection autocomplete-dropdown">
                     <template x-for="category in filteredCategories" :key="category.id">
                         <div @mousedown="selectCategory(category)"
-                            style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0;"
-                            class="category-item" @mouseenter="$el.style.backgroundColor='#f5f5f5'"
-                            @mouseleave="$el.style.backgroundColor='white'" x-text="category.name">
+                            class="category-item collection-item autocomplete-item" x-text="category.name">
                         </div>
                     </template>
                 </div>
@@ -35,8 +33,8 @@
                 <input id="product_selling_price" type="number" step="0.01" x-model="sellingPrice" required />
                 <label for="product_selling_price">Preço de Venda</label>
             </div>
-            <div x-show="errorMessage" class="card-panel red lighten-4 red-text text-darken-4"
-                style="padding: 10px 14px; margin-bottom: 12px;" x-text="errorMessage"></div>
+            <div x-show="errorMessage" class="card-panel red lighten-4 red-text text-darken-4 error-message"
+                x-text="errorMessage"></div>
         </form>
     </div>
     <div class="modal-footer">

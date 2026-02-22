@@ -1,5 +1,5 @@
 {{ define "categories-table" }}
-<div x-show="loadingTable" class="center-align" style="padding: 40px 0;">
+<div x-show="loadingTable" class="center-align table-loading">
     <div class="preloader-wrapper small active">
         <div class="spinner-layer spinner-teal-only">
             <div class="circle-clipper left">
@@ -38,7 +38,7 @@
             </tbody>
         </table>
 
-        <div class="center-align" style="margin-top: 20px;" x-show="totalPages > 1">
+        <div class="center-align pagination-wrapper" x-show="totalPages > 1">
             <ul class="pagination">
                 <li :class="page <= 1 ? 'disabled' : 'waves-effect'">
                     <a href="#!" @click.prevent="goToPage(page - 1)">

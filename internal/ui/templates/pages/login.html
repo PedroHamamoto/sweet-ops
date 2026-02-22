@@ -11,8 +11,9 @@
                     <p class="brand-logo-text">🍪 Sweet Ops</p>
                     <span class="card-title">Sign in</span>
 
-                    <div x-show="errorMessage" x-cloak class="card-panel red lighten-4 red-text text-darken-4"
-                        style="padding: 10px 14px; margin-bottom: 12px;" x-text="errorMessage"></div>
+                    <div x-show="errorMessage" x-cloak
+                        class="card-panel red lighten-4 red-text text-darken-4 error-message" x-text="errorMessage">
+                    </div>
 
                     <form @submit.prevent="submit">
                         <div class="input-field">
@@ -28,8 +29,7 @@
                             <label for="password">Password</label>
                         </div>
 
-                        <button type="submit" class="btn waves-effect waves-light col s12" style="width: 100%;"
-                            :disabled="loading">
+                        <button type="submit" class="btn waves-effect waves-light col s12 w-100" :disabled="loading">
                             <span x-show="!loading">Login</span>
                             <span x-show="loading">
                                 <i class="material-icons left">hourglass_empty</i>

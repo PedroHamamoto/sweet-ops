@@ -8,8 +8,8 @@
                 <input id="category_name" type="text" x-model="name" required />
                 <label for="category_name">Nome da Categoria</label>
             </div>
-            <div x-show="errorMessage" class="card-panel red lighten-4 red-text text-darken-4"
-                style="padding: 10px 14px; margin-bottom: 12px;" x-text="errorMessage"></div>
+            <div x-show="errorMessage" class="card-panel red lighten-4 red-text text-darken-4 error-message"
+                x-text="errorMessage"></div>
         </form>
     </div>
     <div class="modal-footer">
