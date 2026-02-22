@@ -120,3 +120,39 @@ func toProductResponse(product *Product) ProductResponse {
 		StockQuantity:   product.StockQuantity,
 	}
 }
+
+type RegisterProductionRequest struct {
+	Quantity int `json:"quantity"`
+}
+
+func (h *Handler) RegisterProduction(w http.ResponseWriter, req *http.Request) {
+	productIDStr := req.PathValue("id")
+	productID, err := uuid.Parse(productIDStr)
+	if err != nil {
+		http.Error(w, "invalid product id", http.StatusBadRequest)
+		return
+	}
+
+	var request RegisterProductionRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if request.Quantity <= 0 {
+		http.Error(w, "quantity must be greater than 0", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.RegisterProduction(req.Context(), productID, request.Quantity)
+	if err != nil {
+		if errors.Is(err, ErrProductNotFound) {
+			http.Error(w, "product not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to register production", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}

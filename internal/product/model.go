@@ -1,11 +1,14 @@
 package product
 
 import (
+	"errors"
 	"sweet-ops/internal/category"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+var ErrProductNotFound = errors.New("product not found")
 
 type Product struct {
 	ID              uuid.UUID
@@ -15,8 +18,16 @@ type Product struct {
 	SellingPrice    float64
 	MarkupMargin    float64
 	StockQuantity   int
+	Version         int
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+}
+
+type Production struct {
+	ID        uuid.UUID
+	ProductID uuid.UUID
+	Quantity  int
+	CreatedAt time.Time
 }
 
 func NewProduct(category *category.Category, flavor string, productionPrice, sellingPrice float64) *Product {

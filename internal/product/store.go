@@ -2,9 +2,11 @@ package product
 
 import (
 	"context"
+	"errors"
 	"sweet-ops/internal/category"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -75,4 +77,38 @@ func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Product, in
 	}
 
 	return products, totalItems, nil
+}
+
+func (s *Store) RegisterProduction(ctx context.Context, productID uuid.UUID, quantity int) error {
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	var version int
+	err = tx.QueryRow(ctx, "SELECT version FROM products WHERE id = $1", productID).Scan(&version)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrProductNotFound
+		}
+		return err
+	}
+
+	id, _ := uuid.NewV7()
+	_, err = tx.Exec(ctx, "INSERT INTO productions (id, product_id, quantity, created_at) VALUES ($1, $2, $3, now())", id, productID, quantity)
+	if err != nil {
+		return err
+	}
+
+	tag, err := tx.Exec(ctx, "UPDATE products SET stock_quantity = stock_quantity + $2, version = version + 1 WHERE id = $1 AND version = $3", productID, quantity, version)
+	if err != nil {
+		return err
+	}
+
+	if tag.RowsAffected() == 0 {
+		return errors.New("optimistic lock error: product was updated by another transaction")
+	}
+
+	return tx.Commit(ctx)
 }

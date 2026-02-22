@@ -42,3 +42,7 @@ func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageabl
 	}
 	return types.NewPageable(products, page, pageSize, totalItems), nil
 }
+
+func (s *Service) RegisterProduction(ctx context.Context, productID uuid.UUID, quantity int) error {
+	return s.store.RegisterProduction(ctx, productID, quantity)
+}
