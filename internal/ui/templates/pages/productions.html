@@ -1,0 +1,22 @@
+{{ template "base" . }}
+
+{{ define "title" }}Sweet Ops - Produção{{ end }}
+
+{{ define "content" }}
+
+<div x-data="productionsPage()" x-init="fetchProducts()">
+    <h4><span><i class="material-icons">factory</i> Produção</span></h4>
+    <div style="margin-top: 40px;">
+        <div class="row">
+            <div class="col s12">
+                <button class="btn waves-effect waves-light teal" @click="openModal()">
+                    <i class="material-icons left">add</i>Registrar Produção
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{ template "productions-modal" . }}
+</div>
+
+{{ end }}

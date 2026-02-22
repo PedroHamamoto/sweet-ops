@@ -31,6 +31,7 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 			r.Get("/home", Home)
 			r.Get("/categories", categoryHandler.RenderCategories)
 			r.Get("/products", productHandler.RenderProducts)
+			r.Get("/productions", productHandler.RenderProductions)
 		})
 	})
 

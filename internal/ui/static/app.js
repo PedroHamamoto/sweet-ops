@@ -335,7 +335,111 @@ function productsPage() {
 document.addEventListener('DOMContentLoaded', function () {
     initModal('categoryModal');
     initModal('productModal');
+    initModal('productionModal');
 });
+
+// Productions
+function productionsPage() {
+    return {
+        products: [],
+        filteredProducts: [],
+        productSearch: "",
+        productId: "",
+        showDropdown: false,
+        quantity: 1,
+        loading: false,
+        errorMessage: "",
+
+        openModal() {
+            const modal = document.getElementById('productionModal');
+            const instance = M.Modal.getInstance(modal);
+            instance.open();
+        },
+
+        async fetchProducts() {
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch(`/api/products?page=1&page_size=1000`, {
+                    headers: { "Authorization": "Bearer " + token },
+                });
+
+                if (!res.ok) {
+                    throw new Error("Falha ao carregar produtos");
+                }
+
+                const data = await res.json();
+                this.products = data.data || [];
+                this.filteredProducts = this.products;
+            } catch (err) {
+                console.error(err);
+            }
+        },
+
+        filterProducts() {
+            const search = this.productSearch.toLowerCase();
+            if (search === "") {
+                this.filteredProducts = this.products;
+            } else {
+                this.filteredProducts = this.products.filter(prod =>
+                    prod.flavor.toLowerCase().includes(search) ||
+                    prod.category.name.toLowerCase().includes(search)
+                );
+            }
+            this.showDropdown = true;
+        },
+
+        selectProduct(product) {
+            this.productId = product.id;
+            this.productSearch = product.category.name + ' ' + product.flavor;
+            this.showDropdown = false;
+        },
+
+        async submit() {
+            this.errorMessage = "";
+            this.loading = true;
+
+            if (!this.productId) {
+                this.errorMessage = "Selecione um produto da lista";
+                this.loading = false;
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch(`/api/products/${this.productId}/productions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token,
+                    },
+                    body: JSON.stringify({
+                        quantity: parseInt(this.quantity, 10),
+                    }),
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text.trim() || "Falha ao registrar produção");
+                }
+
+                const modal = document.getElementById('productionModal');
+                M.Modal.getInstance(modal).close();
+
+                // Reset form
+                this.productId = "";
+                this.productSearch = "";
+                this.quantity = 1;
+                this.filteredProducts = this.products;
+
+                M.toast({ html: 'Produção registrada com sucesso!', classes: 'green' });
+            } catch (err) {
+                this.errorMessage = err.message;
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
 
 // Common
 function initModal(id, options = {}) {

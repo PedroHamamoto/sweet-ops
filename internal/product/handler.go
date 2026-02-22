@@ -79,6 +79,10 @@ func (h *Handler) RenderProducts(w http.ResponseWriter, req *http.Request) {
 	ui.Render(w, req, "products", nil)
 }
 
+func (h *Handler) RenderProductions(w http.ResponseWriter, req *http.Request) {
+	ui.Render(w, req, "productions", nil)
+}
+
 func (h *Handler) GetAll(w http.ResponseWriter, req *http.Request) {
 	page, _ := strconv.Atoi(req.URL.Query().Get("page"))
 	if page < 1 {
