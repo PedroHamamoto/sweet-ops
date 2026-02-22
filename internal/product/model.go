@@ -30,9 +30,10 @@ type Production struct {
 	CreatedAt time.Time
 }
 
-func NewProduct(category *category.Category, flavor string, productionPrice, sellingPrice float64) *Product {
+func NewProduct(id uuid.UUID, category *category.Category, flavor string, productionPrice, sellingPrice float64) *Product {
 	markupMargin := ((sellingPrice - productionPrice) / productionPrice) * 100
 	return &Product{
+		ID:              id,
 		Category:        category,
 		Flavor:          flavor,
 		ProductionPrice: productionPrice,

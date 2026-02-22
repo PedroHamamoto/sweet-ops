@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"sweet-ops/internal/category"
-	"sweet-ops/internal/utils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -26,9 +25,7 @@ func (s *Store) Create(ctx context.Context, product *Product) (*Product, error) 
 		RETURNING id, created_at, updated_at
 		`
 
-	id := utils.NewUUID()
-
-	err := s.db.QueryRow(ctx, statement, id, product.Category.ID, product.Flavor, product.ProductionPrice, product.SellingPrice, product.MarkupMargin).
+	err := s.db.QueryRow(ctx, statement, product.ID, product.Category.ID, product.Flavor, product.ProductionPrice, product.SellingPrice, product.MarkupMargin).
 		Scan(&product.ID, &product.CreatedAt, &product.UpdatedAt)
 
 	if err != nil {
@@ -80,7 +77,7 @@ func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Product, in
 	return products, totalItems, nil
 }
 
-func (s *Store) RegisterProduction(ctx context.Context, productID uuid.UUID, quantity int) error {
+func (s *Store) RegisterProduction(ctx context.Context, productID uuid.UUID, id uuid.UUID, quantity int) error {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -96,7 +93,6 @@ func (s *Store) RegisterProduction(ctx context.Context, productID uuid.UUID, qua
 		return err
 	}
 
-	id := utils.NewUUID()
 	_, err = tx.Exec(ctx, "INSERT INTO productions (id, product_id, quantity, created_at) VALUES ($1, $2, $3, now())", id, productID, quantity)
 	if err != nil {
 		return err

@@ -3,7 +3,6 @@ package category
 import (
 	"context"
 	"errors"
-	"sweet-ops/internal/utils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -20,11 +19,10 @@ func NewStore(db *pgxpool.Pool) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) Create(ctx context.Context, name string) (*Category, error) {
-	id := utils.NewUUID()
+func (s *Store) Create(ctx context.Context, category *Category) (*Category, error) {
 	statement := "INSERT INTO categories (id, name) VALUES ($1, $2) RETURNING id, name, created_at, updated_at"
 	c := &Category{}
-	err := s.db.QueryRow(ctx, statement, id, name).
+	err := s.db.QueryRow(ctx, statement, category.ID, category.Name).
 		Scan(&c.ID, &c.Name, &c.CreatedAt, &c.UpdatedAt)
 
 	if err != nil {

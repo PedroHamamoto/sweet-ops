@@ -3,6 +3,7 @@ package category
 import (
 	"context"
 	"sweet-ops/internal/types"
+	"sweet-ops/internal/utils"
 
 	"github.com/google/uuid"
 )
@@ -16,7 +17,11 @@ func NewService(store *Store) *Service {
 }
 
 func (s *Service) Create(ctx context.Context, name string) (*Category, error) {
-	return s.store.Create(ctx, name)
+	category := &Category{
+		ID:   utils.NewUUID(),
+		Name: name,
+	}
+	return s.store.Create(ctx, category)
 }
 
 func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*Category, error) {

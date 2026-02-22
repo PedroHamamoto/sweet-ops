@@ -4,6 +4,7 @@ import (
 	"context"
 	"sweet-ops/internal/category"
 	"sweet-ops/internal/types"
+	"sweet-ops/internal/utils"
 
 	"github.com/google/uuid"
 )
@@ -30,7 +31,8 @@ func (s *Service) Create(ctx context.Context, input *CreateProductInput) (*Produ
 		return nil, err
 	}
 
-	product := NewProduct(category, input.Flavor, input.ProductionPrice, input.SellingPrice)
+	id := utils.NewUUID()
+	product := NewProduct(id, category, input.Flavor, input.ProductionPrice, input.SellingPrice)
 
 	return s.store.Create(ctx, product)
 }
@@ -44,5 +46,6 @@ func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageabl
 }
 
 func (s *Service) RegisterProduction(ctx context.Context, productID uuid.UUID, quantity int) error {
-	return s.store.RegisterProduction(ctx, productID, quantity)
+	id := utils.NewUUID()
+	return s.store.RegisterProduction(ctx, productID, id, quantity)
 }
