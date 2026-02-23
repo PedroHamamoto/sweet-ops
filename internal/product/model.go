@@ -24,10 +24,12 @@ type Product struct {
 }
 
 type Production struct {
-	ID        uuid.UUID
-	ProductID uuid.UUID
-	Quantity  int
-	CreatedAt time.Time
+	ID                  uuid.UUID
+	ProductID           uuid.UUID
+	Quantity            int
+	CreatedAt           time.Time
+	ProductFlavor       string
+	ProductCategoryName string
 }
 
 func NewProduct(id uuid.UUID, category *category.Category, flavor string, productionPrice, sellingPrice float64) *Product {

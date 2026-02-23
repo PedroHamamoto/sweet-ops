@@ -1,0 +1,66 @@
+{{ define "productions-table" }}
+<div x-show="loadingTable" class="center-align table-loading">
+    <div class="preloader-wrapper small active">
+        <div class="spinner-layer spinner-teal-only">
+            <div class="circle-clipper left">
+                <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+                <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template x-if="!loadingTable && productions.length === 0">
+    <div class="card-panel grey lighten-4 center-align">
+        <p class="grey-text text-darken-1">Nenhuma produção registrada.</p>
+    </div>
+</template>
+
+<template x-if="!loadingTable && productions.length > 0">
+    <div>
+        <table class="striped highlight responsive-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Data de Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="production in productions" :key="production.id">
+                    <tr>
+                        <td x-text="production.product_name"></td>
+                        <td x-text="production.quantity"></td>
+                        <td x-text="formatDate(production.created_at)"></td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <div class="center-align pagination-wrapper" x-show="totalPages > 1">
+            <ul class="pagination">
+                <li :class="page <= 1 ? 'disabled' : 'waves-effect'">
+                    <a href="#!" @click.prevent="goToPage(page - 1)">
+                        <i class="material-icons">chevron_left</i>
+                    </a>
+                </li>
+                <template x-for="p in paginationRange()" :key="p">
+                    <li :class="p === page ? 'active teal' : 'waves-effect'">
+                        <a href="#!" @click.prevent="goToPage(p)" x-text="p"></a>
+                    </li>
+                </template>
+                <li :class="page >= totalPages ? 'disabled' : 'waves-effect'">
+                    <a href="#!" @click.prevent="goToPage(page + 1)">
+                        <i class="material-icons">chevron_right</i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+{{ end }}

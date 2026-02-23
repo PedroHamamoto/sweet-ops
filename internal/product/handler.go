@@ -8,6 +8,7 @@ import (
 	"sweet-ops/internal/category"
 	"sweet-ops/internal/types"
 	"sweet-ops/internal/ui"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -125,6 +126,14 @@ func toProductResponse(product *Product) ProductResponse {
 	}
 }
 
+type ProductionResponse struct {
+	ID          string `json:"id"`
+	ProductID   string `json:"product_id"`
+	ProductName string `json:"product_name"`
+	Quantity    int    `json:"quantity"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type RegisterProductionRequest struct {
 	Quantity int `json:"quantity"`
 }
@@ -159,4 +168,37 @@ func (h *Handler) RegisterProduction(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *Handler) GetAllProductions(w http.ResponseWriter, req *http.Request) {
+	page, _ := strconv.Atoi(req.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	pageSize, _ := strconv.Atoi(req.URL.Query().Get("page_size"))
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 10
+	}
+
+	result, err := h.service.GetAllProductions(req.Context(), page, pageSize)
+	if err != nil {
+		http.Error(w, "failed to get productions", http.StatusInternalServerError)
+		return
+	}
+
+	var items []ProductionResponse
+	for _, prod := range result.Data {
+		items = append(items, ProductionResponse{
+			ID:          prod.ID.String(),
+			ProductID:   prod.ProductID.String(),
+			ProductName: prod.ProductCategoryName + " " + prod.ProductFlavor,
+			Quantity:    prod.Quantity,
+			CreatedAt:   prod.CreatedAt,
+		})
+	}
+
+	response := types.NewPageable(items, result.Page, result.PageSize, result.TotalItems)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }

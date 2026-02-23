@@ -341,6 +341,15 @@ document.addEventListener('DOMContentLoaded', function () {
 // Productions
 function productionsPage() {
     return {
+        // Table state
+        productions: [],
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+        totalItems: 0,
+        loadingTable: false,
+
+        // Modal / form state
         products: [],
         filteredProducts: [],
         productSearch: "",
@@ -373,6 +382,58 @@ function productionsPage() {
             } catch (err) {
                 console.error(err);
             }
+        },
+
+        async fetchProductions() {
+            this.loadingTable = true;
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch(`/api/productions?page=${this.page}&page_size=${this.pageSize}`, {
+                    headers: { "Authorization": "Bearer " + token },
+                });
+
+                if (!res.ok) {
+                    throw new Error("Falha ao carregar produções");
+                }
+
+                const data = await res.json();
+                this.productions = data.data || [];
+                this.page = data.page;
+                this.pageSize = data.page_size;
+                this.totalPages = data.total_pages;
+                this.totalItems = data.total_items;
+            } catch (err) {
+                console.error(err);
+            } finally {
+                this.loadingTable = false;
+            }
+        },
+
+        goToPage(p) {
+            if (p < 1 || p > this.totalPages) return;
+            this.page = p;
+            this.fetchProductions();
+        },
+
+        paginationRange() {
+            const range = [];
+            const maxVisible = 5;
+            let start = Math.max(1, this.page - Math.floor(maxVisible / 2));
+            let end = start + maxVisible - 1;
+
+            if (end > this.totalPages) {
+                end = this.totalPages;
+                start = Math.max(1, end - maxVisible + 1);
+            }
+
+            for (let i = start; i <= end; i++) {
+                range.push(i);
+            }
+            return range;
+        },
+
+        formatDate(value) {
+            return new Date(value).toLocaleString('pt-BR');
         },
 
         filterProducts() {
@@ -430,6 +491,10 @@ function productionsPage() {
                 this.productSearch = "";
                 this.quantity = 1;
                 this.filteredProducts = this.products;
+
+                // Refresh table
+                this.page = 1;
+                await this.fetchProductions();
 
                 M.toast({ html: 'Produção registrada com sucesso!', classes: 'green' });
             } catch (err) {

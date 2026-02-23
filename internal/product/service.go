@@ -48,6 +48,15 @@ func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageabl
 	return types.NewPageable(products, page, pageSize, totalItems), nil
 }
 
+func (s *Service) GetAllProductions(ctx context.Context, page, pageSize int) (types.Pageable[*Production], error) {
+	offset := (page - 1) * pageSize
+	productions, totalItems, err := s.store.FindAllProductions(ctx, pageSize, offset)
+	if err != nil {
+		return types.Pageable[*Production]{}, err
+	}
+	return types.NewPageable(productions, page, pageSize, totalItems), nil
+}
+
 func (s *Service) RegisterProduction(ctx context.Context, productID uuid.UUID, quantity int) error {
 	id := utils.NewUUID()
 

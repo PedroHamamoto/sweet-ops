@@ -98,6 +98,42 @@ func (s *Store) SaveProduction(ctx context.Context, tx pgx.Tx, production *Produ
 	return err
 }
 
+func (s *Store) FindAllProductions(ctx context.Context, limit, offset int) ([]*Production, int, error) {
+	var totalItems int
+	if err := s.db.QueryRow(ctx, "SELECT COUNT(*) FROM productions").Scan(&totalItems); err != nil {
+		return nil, 0, err
+	}
+
+	statement := `
+		SELECT pr.id, pr.product_id, pr.quantity, pr.created_at,
+		       p.flavor, c.name
+		FROM productions pr
+		JOIN products p ON pr.product_id = p.id
+		JOIN categories c ON p.category_id = c.id
+		ORDER BY pr.created_at DESC
+		LIMIT $1 OFFSET $2
+	`
+	rows, err := s.db.Query(ctx, statement, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var productions []*Production
+	for rows.Next() {
+		p := &Production{}
+		if err := rows.Scan(&p.ID, &p.ProductID, &p.Quantity, &p.CreatedAt, &p.ProductFlavor, &p.ProductCategoryName); err != nil {
+			return nil, 0, err
+		}
+		productions = append(productions, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return productions, totalItems, nil
+}
+
 func (s *Store) IncrementStock(ctx context.Context, tx pgx.Tx, productID uuid.UUID, quantity int, currentVersion int) error {
 	tag, err := tx.Exec(ctx, "UPDATE products SET stock_quantity = stock_quantity + $2, version = version + 1 WHERE id = $1 AND version = $3",
 		productID, quantity, currentVersion)
