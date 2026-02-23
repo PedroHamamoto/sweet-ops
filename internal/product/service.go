@@ -40,7 +40,8 @@ func (s *Service) Create(ctx context.Context, input *CreateProductInput) (*Produ
 }
 
 func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageable[*Product], error) {
-	products, totalItems, err := s.store.FindAll(ctx, page, pageSize)
+	offset := (page - 1) * pageSize
+	products, totalItems, err := s.store.FindAll(ctx, pageSize, offset)
 	if err != nil {
 		return types.Pageable[*Product]{}, err
 	}

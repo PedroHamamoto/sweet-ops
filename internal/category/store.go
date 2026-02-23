@@ -32,16 +32,15 @@ func (s *Store) Create(ctx context.Context, category *Category) (*Category, erro
 	return c, nil
 }
 
-func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Category, int, error) {
+func (s *Store) FindAll(ctx context.Context, limit, offset int) ([]*Category, int, error) {
 	var totalItems int
 	countStmt := "SELECT COUNT(*) FROM categories"
 	if err := s.db.QueryRow(ctx, countStmt).Scan(&totalItems); err != nil {
 		return nil, 0, err
 	}
 
-	offset := (page - 1) * pageSize
 	statement := "SELECT id, name, created_at, updated_at FROM categories ORDER BY id LIMIT $1 OFFSET $2"
-	rows, err := s.db.Query(ctx, statement, pageSize, offset)
+	rows, err := s.db.Query(ctx, statement, limit, offset)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -39,14 +39,13 @@ func (s *Store) Create(ctx context.Context, product *Product) (*Product, error) 
 	return product, nil
 }
 
-func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Product, int, error) {
+func (s *Store) FindAll(ctx context.Context, limit, offset int) ([]*Product, int, error) {
 	var totalItems int
 	countStmt := "SELECT COUNT(*) FROM products"
 	if err := s.db.QueryRow(ctx, countStmt).Scan(&totalItems); err != nil {
 		return nil, 0, err
 	}
 
-	offset := (page - 1) * pageSize
 	statement := `
 		SELECT p.id, p.flavor, p.production_price, p.selling_price, p.markup_margin, p.stock_quantity, p.created_at, p.updated_at,
 		       c.id, c.name, c.created_at, c.updated_at
@@ -55,7 +54,7 @@ func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Product, in
 		ORDER BY p.id
 		LIMIT $1 OFFSET $2
 	`
-	rows, err := s.db.Query(ctx, statement, pageSize, offset)
+	rows, err := s.db.Query(ctx, statement, limit, offset)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -29,7 +29,8 @@ func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*Category, error) 
 }
 
 func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageable[*Category], error) {
-	categories, totalItems, err := s.store.FindAll(ctx, page, pageSize)
+	offset := (page - 1) * pageSize
+	categories, totalItems, err := s.store.FindAll(ctx, pageSize, offset)
 	if err != nil {
 		return types.Pageable[*Category]{}, err
 	}
