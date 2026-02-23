@@ -5,8 +5,10 @@ import (
 	"sweet-ops/internal/category"
 	"sweet-ops/internal/types"
 	"sweet-ops/internal/utils"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type Service struct {
@@ -47,5 +49,24 @@ func (s *Service) GetAll(ctx context.Context, page, pageSize int) (types.Pageabl
 
 func (s *Service) RegisterProduction(ctx context.Context, productID uuid.UUID, quantity int) error {
 	id := utils.NewUUID()
-	return s.store.RegisterProduction(ctx, productID, id, quantity)
+
+	return utils.ExecuteTx(ctx, s.store, func(tx pgx.Tx) error {
+		version, err := s.store.GetVersion(ctx, tx, productID)
+		if err != nil {
+			return err
+		}
+
+		production := &Production{
+			ID:        id,
+			ProductID: productID,
+			Quantity:  quantity,
+			CreatedAt: time.Now(),
+		}
+
+		if err := s.store.SaveProduction(ctx, tx, production); err != nil {
+			return err
+		}
+
+		return s.store.IncrementStock(ctx, tx, productID, quantity, version)
+	})
 }

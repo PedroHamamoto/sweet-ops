@@ -18,6 +18,10 @@ func NewStore(db *pgxpool.Pool) *Store {
 	return &Store{db: db}
 }
 
+func (s *Store) DB() *pgxpool.Pool {
+	return s.db
+}
+
 func (s *Store) Create(ctx context.Context, product *Product) (*Product, error) {
 	statement := `
 		INSERT INTO products (id, category_id, flavor, production_price, selling_price, markup_margin, created_at, updated_at)
@@ -77,28 +81,27 @@ func (s *Store) FindAll(ctx context.Context, page, pageSize int) ([]*Product, in
 	return products, totalItems, nil
 }
 
-func (s *Store) RegisterProduction(ctx context.Context, productID uuid.UUID, id uuid.UUID, quantity int) error {
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
+func (s *Store) GetVersion(ctx context.Context, tx pgx.Tx, productID uuid.UUID) (int, error) {
 	var version int
-	err = tx.QueryRow(ctx, "SELECT version FROM products WHERE id = $1", productID).Scan(&version)
+	err := tx.QueryRow(ctx, "SELECT version FROM products WHERE id = $1", productID).Scan(&version)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return ErrProductNotFound
+			return 0, ErrProductNotFound
 		}
-		return err
+		return 0, err
 	}
+	return version, nil
+}
 
-	_, err = tx.Exec(ctx, "INSERT INTO productions (id, product_id, quantity, created_at) VALUES ($1, $2, $3, now())", id, productID, quantity)
-	if err != nil {
-		return err
-	}
+func (s *Store) SaveProduction(ctx context.Context, tx pgx.Tx, production *Production) error {
+	_, err := tx.Exec(ctx, "INSERT INTO productions (id, product_id, quantity, created_at) VALUES ($1, $2, $3, $4)",
+		production.ID, production.ProductID, production.Quantity, production.CreatedAt)
+	return err
+}
 
-	tag, err := tx.Exec(ctx, "UPDATE products SET stock_quantity = stock_quantity + $2, version = version + 1 WHERE id = $1 AND version = $3", productID, quantity, version)
+func (s *Store) IncrementStock(ctx context.Context, tx pgx.Tx, productID uuid.UUID, quantity int, currentVersion int) error {
+	tag, err := tx.Exec(ctx, "UPDATE products SET stock_quantity = stock_quantity + $2, version = version + 1 WHERE id = $1 AND version = $3",
+		productID, quantity, currentVersion)
 	if err != nil {
 		return err
 	}
@@ -107,5 +110,5 @@ func (s *Store) RegisterProduction(ctx context.Context, productID uuid.UUID, id 
 		return errors.New("optimistic lock error: product was updated by another transaction")
 	}
 
-	return tx.Commit(ctx)
+	return nil
 }
