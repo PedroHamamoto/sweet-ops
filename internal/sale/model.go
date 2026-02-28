@@ -15,6 +15,7 @@ var (
 	ErrInvalidPaymentMethod  = errors.New("invalid payment method")
 	ErrGiftInSelfConsumption = errors.New("gift items are not allowed in self-consumption sales")
 	ErrInsufficientStock     = errors.New("insufficient stock for product")
+	ErrVersionMismatch       = errors.New("optimistic lock error: product was updated by another transaction")
 )
 
 type Source string

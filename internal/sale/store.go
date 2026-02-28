@@ -59,6 +59,17 @@ func (s *Store) DecrementStock(ctx context.Context, tx pgx.Tx, productID uuid.UU
 		return err
 	}
 	if tag.RowsAffected() == 0 {
+		var version int
+		err := tx.QueryRow(ctx, "SELECT version FROM products WHERE id = $1", productID).Scan(&version)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return errors.New("product not found")
+			}
+			return err
+		}
+		if version != currentVersion {
+			return ErrVersionMismatch
+		}
 		return ErrInsufficientStock
 	}
 	return nil
