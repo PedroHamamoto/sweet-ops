@@ -21,14 +21,15 @@ var (
 type Source string
 
 const (
-	SourceBalcao Source = "Balcão"
-	SourceGoomer Source = "Goomer"
-	Source99Food Source = "99 Food"
+	SourceInStore         Source = "Balcão"
+	SourceGoomer          Source = "Goomer"
+	Source99Food          Source = "99 Food"
+	SourceSelfConsumption Source = "Autoconsumo"
 )
 
 func (s Source) IsValid() bool {
 	switch s {
-	case SourceBalcao, SourceGoomer, Source99Food:
+	case SourceInStore, SourceGoomer, Source99Food:
 		return true
 	}
 	return false
@@ -37,10 +38,11 @@ func (s Source) IsValid() bool {
 type PaymentMethod string
 
 const (
-	PaymentCreditCard PaymentMethod = "Cartão de Crédito"
-	PaymentDebitCard  PaymentMethod = "Cartão de Débito"
-	PaymentPIX        PaymentMethod = "PIX"
-	PaymentCash       PaymentMethod = "Dinheiro"
+	PaymentCreditCard      PaymentMethod = "Cartão de Crédito"
+	PaymentDebitCard       PaymentMethod = "Cartão de Débito"
+	PaymentPIX             PaymentMethod = "PIX"
+	PaymentCash            PaymentMethod = "Dinheiro"
+	PaymentSelfConsumption PaymentMethod = "N/A"
 )
 
 func (p PaymentMethod) IsValid() bool {

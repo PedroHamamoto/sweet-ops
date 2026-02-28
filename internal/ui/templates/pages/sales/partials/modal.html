@@ -6,22 +6,36 @@
             <div class="row">
                 <div class="input-field col s6">
                     <i class="material-icons prefix select-icon">store</i>
-                    <select id="sale_source" x-model="source" class="browser-default select-with-icon">
-                        <option value="" disabled selected>Origem</option>
-                        <option value="Balcão">Balcão</option>
-                        <option value="Goomer">Goomer</option>
-                        <option value="99 Food">99 Food</option>
-                    </select>
+                    <template x-if="selfConsumption">
+                        <select id="sale_source_disabled" class="browser-default select-with-icon" disabled>
+                            <option selected>Autoconsumo</option>
+                        </select>
+                    </template>
+                    <template x-if="!selfConsumption">
+                        <select id="sale_source" x-model="source" class="browser-default select-with-icon">
+                            <option value="" disabled selected>Origem</option>
+                            <option value="Balcão">Balcão</option>
+                            <option value="Goomer">Goomer</option>
+                            <option value="99 Food">99 Food</option>
+                        </select>
+                    </template>
                 </div>
                 <div class="input-field col s6">
                     <i class="material-icons prefix select-icon">payment</i>
-                    <select id="sale_payment" x-model="paymentMethod" class="browser-default select-with-icon">
-                        <option value="" disabled selected>Pagamento</option>
-                        <option value="Cartão de Crédito">Cartão de Crédito</option>
-                        <option value="Cartão de Débito">Cartão de Débito</option>
-                        <option value="PIX">PIX</option>
-                        <option value="Dinheiro">Dinheiro</option>
-                    </select>
+                    <template x-if="selfConsumption">
+                        <select id="sale_payment_disabled" class="browser-default select-with-icon" disabled>
+                            <option selected>N/A</option>
+                        </select>
+                    </template>
+                    <template x-if="!selfConsumption">
+                        <select id="sale_payment" x-model="paymentMethod" class="browser-default select-with-icon">
+                            <option value="" disabled selected>Pagamento</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="PIX">PIX</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                    </template>
                 </div>
             </div>
 

@@ -33,11 +33,16 @@ type CreateSaleInput struct {
 }
 
 func (s *Service) Create(ctx context.Context, input *CreateSaleInput) (*Sale, error) {
-	if !input.Source.IsValid() {
-		return nil, ErrInvalidSource
-	}
-	if !input.PaymentMethod.IsValid() {
-		return nil, ErrInvalidPaymentMethod
+	if input.SelfConsumption {
+		input.Source = SourceSelfConsumption
+		input.PaymentMethod = PaymentSelfConsumption
+	} else {
+		if !input.Source.IsValid() {
+			return nil, ErrInvalidSource
+		}
+		if !input.PaymentMethod.IsValid() {
+			return nil, ErrInvalidPaymentMethod
+		}
 	}
 	if len(input.Items) == 0 {
 		return nil, ErrEmptyItems

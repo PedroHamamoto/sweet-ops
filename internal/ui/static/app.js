@@ -631,6 +631,13 @@ function salesPage() {
         onSelfConsumptionChange() {
             if (this.selfConsumption) {
                 this.items.forEach(item => { item.isGift = false; });
+                this._prevSource = this.source;
+                this._prevPaymentMethod = this.paymentMethod;
+                this.source = 'Autoconsumo';
+                this.paymentMethod = 'N/A';
+            } else {
+                this.source = this._prevSource || '';
+                this.paymentMethod = this._prevPaymentMethod || '';
             }
             this.calculateTotal();
         },
@@ -653,15 +660,17 @@ function salesPage() {
             this.errorMessage = "";
             this.loading = true;
 
-            if (!this.source) {
-                this.errorMessage = "Selecione a origem da venda";
-                this.loading = false;
-                return;
-            }
-            if (!this.paymentMethod) {
-                this.errorMessage = "Selecione o método de pagamento";
-                this.loading = false;
-                return;
+            if (!this.selfConsumption) {
+                if (!this.source) {
+                    this.errorMessage = "Selecione a origem da venda";
+                    this.loading = false;
+                    return;
+                }
+                if (!this.paymentMethod) {
+                    this.errorMessage = "Selecione o método de pagamento";
+                    this.loading = false;
+                    return;
+                }
             }
 
             const saleItems = [];
