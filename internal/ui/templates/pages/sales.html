@@ -1,0 +1,28 @@
+{{ template "base" . }}
+
+{{ define "title" }}Sweet Ops - Vendas{{ end }}
+
+{{ define "content" }}
+
+<div x-data="salesPage()" x-init="fetchProducts(); fetchSales()">
+    <h4><span><i class="material-icons">point_of_sale</i> Vendas</span></h4>
+    <div>
+        <div class="row">
+            <div class="col s12">
+                <button class="btn waves-effect waves-light teal" @click="openModal()">
+                    <i class="material-icons left">add</i>Nova Venda
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s12">
+            {{ template "sales-table" . }}
+        </div>
+    </div>
+
+    {{ template "sales-modal" . }}
+</div>
+
+{{ end }}

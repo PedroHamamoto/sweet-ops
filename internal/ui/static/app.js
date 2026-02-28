@@ -336,6 +336,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initModal('categoryModal');
     initModal('productModal');
     initModal('productionModal');
+    initModal('saleModal');
 });
 
 // Productions
@@ -503,6 +504,239 @@ function productionsPage() {
                 this.loading = false;
             }
         }
+    };
+}
+
+// Sales
+function salesPage() {
+    return {
+        // Table state
+        sales: [],
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+        totalItems: 0,
+        loadingTable: false,
+
+        // Products for item selection
+        products: [],
+
+        // Form state
+        source: "",
+        paymentMethod: "",
+        selfConsumption: false,
+        items: [newSaleItem()],
+        total: 0,
+        loading: false,
+        errorMessage: "",
+
+        openModal() {
+            const modal = document.getElementById('saleModal');
+            M.Modal.getInstance(modal).open();
+        },
+
+        async fetchProducts() {
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch(`/api/products?page=1&page_size=1000`, {
+                    headers: { "Authorization": "Bearer " + token },
+                });
+                if (!res.ok) throw new Error("Falha ao carregar produtos");
+                const data = await res.json();
+                this.products = data.data || [];
+            } catch (err) {
+                console.error(err);
+            }
+        },
+
+        async fetchSales() {
+            this.loadingTable = true;
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch(`/api/sales?page=${this.page}&page_size=${this.pageSize}`, {
+                    headers: { "Authorization": "Bearer " + token },
+                });
+                if (!res.ok) throw new Error("Falha ao carregar vendas");
+                const data = await res.json();
+                this.sales = data.data || [];
+                this.page = data.page;
+                this.pageSize = data.page_size;
+                this.totalPages = data.total_pages;
+                this.totalItems = data.total_items;
+            } catch (err) {
+                console.error(err);
+            } finally {
+                this.loadingTable = false;
+            }
+        },
+
+        goToPage(p) {
+            if (p < 1 || p > this.totalPages) return;
+            this.page = p;
+            this.fetchSales();
+        },
+
+        paginationRange() {
+            const range = [];
+            const maxVisible = 5;
+            let start = Math.max(1, this.page - Math.floor(maxVisible / 2));
+            let end = start + maxVisible - 1;
+            if (end > this.totalPages) {
+                end = this.totalPages;
+                start = Math.max(1, end - maxVisible + 1);
+            }
+            for (let i = start; i <= end; i++) {
+                range.push(i);
+            }
+            return range;
+        },
+
+        formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        },
+
+        formatDate(value) {
+            return new Date(value).toLocaleString('pt-BR');
+        },
+
+        addItem() {
+            this.items.push(newSaleItem());
+        },
+
+        removeItem(index) {
+            this.items.splice(index, 1);
+            this.calculateTotal();
+        },
+
+        filterProductsForItem(index) {
+            const search = this.items[index].productSearch.toLowerCase();
+            if (search === "") {
+                this.items[index].filteredProducts = this.products;
+            } else {
+                this.items[index].filteredProducts = this.products.filter(p =>
+                    (p.category.name + ' ' + p.flavor).toLowerCase().includes(search)
+                );
+            }
+            this.items[index].showDropdown = true;
+        },
+
+        selectProductForItem(index, product) {
+            this.items[index].productId = product.id;
+            this.items[index].productSearch = product.category.name + ' ' + product.flavor;
+            this.items[index].unitPrice = product.selling_price;
+            this.items[index].showDropdown = false;
+            this.calculateTotal();
+        },
+
+        onSelfConsumptionChange() {
+            if (this.selfConsumption) {
+                this.items.forEach(item => { item.isGift = false; });
+            }
+            this.calculateTotal();
+        },
+
+        calculateTotal() {
+            if (this.selfConsumption) {
+                this.total = 0;
+                return;
+            }
+            let t = 0;
+            for (const item of this.items) {
+                if (!item.isGift && item.unitPrice && item.quantity) {
+                    t += item.unitPrice * item.quantity;
+                }
+            }
+            this.total = t;
+        },
+
+        async submit() {
+            this.errorMessage = "";
+            this.loading = true;
+
+            if (!this.source) {
+                this.errorMessage = "Selecione a origem da venda";
+                this.loading = false;
+                return;
+            }
+            if (!this.paymentMethod) {
+                this.errorMessage = "Selecione o método de pagamento";
+                this.loading = false;
+                return;
+            }
+
+            const saleItems = [];
+            for (const item of this.items) {
+                if (!item.productId) {
+                    this.errorMessage = "Selecione um produto para todos os itens";
+                    this.loading = false;
+                    return;
+                }
+                if (!item.quantity || item.quantity <= 0) {
+                    this.errorMessage = "Quantidade deve ser maior que 0";
+                    this.loading = false;
+                    return;
+                }
+                saleItems.push({
+                    product_id: item.productId,
+                    quantity: parseInt(item.quantity, 10),
+                    is_gift: item.isGift,
+                });
+            }
+
+            try {
+                const token = localStorage.getItem("access_token");
+                const res = await fetch("/api/sales", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token,
+                    },
+                    body: JSON.stringify({
+                        source: this.source,
+                        payment_method: this.paymentMethod,
+                        self_consumption: this.selfConsumption,
+                        items: saleItems,
+                    }),
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text.trim() || "Falha ao registrar venda");
+                }
+
+                const modal = document.getElementById('saleModal');
+                M.Modal.getInstance(modal).close();
+
+                // Reset form
+                this.source = "";
+                this.paymentMethod = "";
+                this.selfConsumption = false;
+                this.items = [newSaleItem()];
+                this.total = 0;
+
+                // Refresh table
+                this.page = 1;
+                await this.fetchSales();
+
+                M.toast({ html: 'Venda registrada com sucesso!', classes: 'green' });
+            } catch (err) {
+                this.errorMessage = err.message;
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
+
+function newSaleItem() {
+    return {
+        productId: "",
+        productSearch: "",
+        filteredProducts: [],
+        showDropdown: false,
+        quantity: 1,
+        unitPrice: 0,
+        isGift: false,
     };
 }
 

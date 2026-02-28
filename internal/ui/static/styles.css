@@ -80,3 +80,13 @@
   .autocomplete-item:hover {
       background-color: #eee !important;
   }
+
+  .select-with-icon {
+      margin-top: 1rem;
+      padding: 5px;
+      padding-left: 3rem;
+  }
+
+  .input-field .prefix.select-icon {
+      top: 1.5rem;
+  }

@@ -7,6 +7,7 @@ import (
 	"sweet-ops/internal/category"
 	"sweet-ops/internal/http/router"
 	"sweet-ops/internal/product"
+	"sweet-ops/internal/sale"
 	"sweet-ops/internal/user"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -39,7 +40,12 @@ func New(db *pgxpool.Pool) *App {
 	productService := product.NewService(productStore, categoryService)
 	productHandler := product.NewHandler(productService)
 
-	router := router.NewRouter(userHandler, authHandler, authMiddleware, categoryHandler, productHandler)
+	// Sale
+	saleStore := sale.NewStore(db)
+	saleService := sale.NewService(saleStore)
+	saleHandler := sale.NewHandler(saleService)
+
+	router := router.NewRouter(userHandler, authHandler, authMiddleware, categoryHandler, productHandler, saleHandler)
 
 	return &App{
 		Router: router,
