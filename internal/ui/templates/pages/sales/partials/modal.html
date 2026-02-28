@@ -68,7 +68,7 @@
                         </div>
                         <div class="col s2" style="margin-top: 1.2rem;">
                             <span class="grey-text"
-                                x-text="item.isGift ? 'R$ 0,00' : formatMoney((item.unitPrice || 0) * (item.quantity || 0))"></span>
+                                x-text="(selfConsumption || item.isGift) ? 'R$ 0,00' : formatMoney((item.unitPrice || 0) * (item.quantity || 0))"></span>
                         </div>
                         <div class="col s1" style="margin-top: 1rem;">
                             <a href="#!" class="btn-flat" @click="removeItem(index)" x-show="items.length > 1">
