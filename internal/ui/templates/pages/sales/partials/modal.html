@@ -1,0 +1,108 @@
+{{ define "sales-modal" }}
+<div id="saleModal" class="modal modal-fixed-footer" style="max-height:85%; width:60%;">
+    <div class="modal-content">
+        <h4>Nova Venda</h4>
+        <form @submit.prevent="submit">
+            <div class="row">
+                <div class="input-field col s6">
+                    <i class="material-icons prefix select-icon">store</i>
+                    <select id="sale_source" x-model="source" class="browser-default select-with-icon">
+                        <option value="" disabled selected>Origem</option>
+                        <option value="Balcão">Balcão</option>
+                        <option value="Goomer">Goomer</option>
+                        <option value="99 Food">99 Food</option>
+                    </select>
+                </div>
+                <div class="input-field col s6">
+                    <i class="material-icons prefix select-icon">payment</i>
+                    <select id="sale_payment" x-model="paymentMethod" class="browser-default select-with-icon">
+                        <option value="" disabled selected>Pagamento</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s12">
+                    <label>
+                        <input type="checkbox" x-model="selfConsumption" @change="onSelfConsumptionChange()" />
+                        <span>Autoconsumo (venda com total zerado)</span>
+                    </label>
+                </div>
+            </div>
+
+            <h5>Itens da Venda</h5>
+
+            <template x-for="(item, index) in items" :key="index">
+                <div class="card-panel" style="padding: 10px 16px;">
+                    <div class="row" style="margin-bottom:0;">
+                        <div class="input-field col s4">
+                            <input type="text" :id="'item_product_' + index" x-model="item.productSearch"
+                                @input="filterProductsForItem(index)"
+                                @focus="filterProductsForItem(index); item.showDropdown = true"
+                                @blur="setTimeout(() => item.showDropdown = false, 200)" autocomplete="off"
+                                placeholder="Produto" />
+                            <div x-show="item.showDropdown && item.filteredProducts.length > 0"
+                                class="collection autocomplete-dropdown"
+                                style="position:absolute;z-index:10;width:90%;">
+                                <template x-for="prod in item.filteredProducts" :key="prod.id">
+                                    <div @mousedown="selectProductForItem(index, prod)"
+                                        class="collection-item autocomplete-item"
+                                        x-text="prod.category.name + ' ' + prod.flavor + ' (' + formatMoney(prod.selling_price) + ')'">
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="input-field col s2">
+                            <input type="number" min="1" step="1" x-model.number="item.quantity"
+                                @input="calculateTotal()" placeholder="Qtd" />
+                        </div>
+                        <div class="col s3" style="margin-top: 1.5rem;" x-show="!selfConsumption">
+                            <label>
+                                <input type="checkbox" x-model="item.isGift" @change="calculateTotal()" />
+                                <span>Brinde</span>
+                            </label>
+                        </div>
+                        <div class="col s2" style="margin-top: 1.2rem;">
+                            <span class="grey-text"
+                                x-text="item.isGift ? 'R$ 0,00' : formatMoney((item.unitPrice || 0) * (item.quantity || 0))"></span>
+                        </div>
+                        <div class="col s1" style="margin-top: 1rem;">
+                            <a href="#!" class="btn-flat" @click="removeItem(index)" x-show="items.length > 1">
+                                <i class="material-icons red-text">delete</i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="row">
+                <div class="col s6">
+                    <a href="#!" class="btn-flat teal-text" @click="addItem()">
+                        <i class="material-icons left">add</i>Adicionar Item
+                    </a>
+                </div>
+                <div class="col s6 right-align">
+                    <h5>Total: <span x-text="formatMoney(total)"></span></h5>
+                </div>
+            </div>
+
+            <div x-show="errorMessage" class="card-panel red lighten-4 red-text text-darken-4 error-message"
+                x-text="errorMessage"></div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
+        <button type="submit" class="btn waves-effect waves-light teal" @click="submit()" :disabled="loading">
+            <span x-show="!loading">Registrar Venda</span>
+            <span x-show="loading">
+                <i class="material-icons left">hourglass_empty</i>
+                Salvando…
+            </span>
+        </button>
+    </div>
+</div>
+{{ end }}

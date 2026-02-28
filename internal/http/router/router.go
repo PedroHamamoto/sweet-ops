@@ -5,13 +5,14 @@ import (
 	"sweet-ops/internal/auth"
 	"sweet-ops/internal/category"
 	"sweet-ops/internal/product"
+	"sweet-ops/internal/sale"
 	"sweet-ops/internal/ui"
 	"sweet-ops/internal/user"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddleware *auth.Middleware, categoryHandler *category.Handler, productHandler *product.Handler) http.Handler {
+func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddleware *auth.Middleware, categoryHandler *category.Handler, productHandler *product.Handler, saleHandler *sale.Handler) http.Handler {
 	r := chi.NewRouter()
 
 	// Static files
@@ -32,6 +33,7 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 			r.Get("/categories", categoryHandler.RenderCategories)
 			r.Get("/products", productHandler.RenderProducts)
 			r.Get("/productions", productHandler.RenderProductions)
+			r.Get("/sales", saleHandler.RenderSales)
 		})
 	})
 
@@ -49,6 +51,9 @@ func NewRouter(userHandler *user.Handler, authHandler *auth.Handler, authMiddlew
 			r.Get("/products", productHandler.GetAll)
 			r.Post("/products/{id}/productions", productHandler.RegisterProduction)
 			r.Get("/productions", productHandler.GetAllProductions)
+
+			r.Post("/sales", saleHandler.Create)
+			r.Get("/sales", saleHandler.GetAll)
 		})
 	})
 

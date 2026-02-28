@@ -3,6 +3,7 @@ package product
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"sweet-ops/internal/category"
@@ -127,10 +128,10 @@ func toProductResponse(product *Product) ProductResponse {
 }
 
 type ProductionResponse struct {
-	ID          string `json:"id"`
-	ProductID   string `json:"product_id"`
-	ProductName string `json:"product_name"`
-	Quantity    int    `json:"quantity"`
+	ID          string    `json:"id"`
+	ProductID   string    `json:"product_id"`
+	ProductName string    `json:"product_name"`
+	Quantity    int       `json:"quantity"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
@@ -159,6 +160,8 @@ func (h *Handler) RegisterProduction(w http.ResponseWriter, req *http.Request) {
 
 	err = h.service.RegisterProduction(req.Context(), productID, request.Quantity)
 	if err != nil {
+		log.Printf("failed to register production for product %s: %v", productID, err)
+
 		if errors.Is(err, ErrProductNotFound) {
 			http.Error(w, "product not found", http.StatusNotFound)
 			return
